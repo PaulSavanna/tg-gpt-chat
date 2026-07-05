@@ -37,3 +37,15 @@ async def test_chat_with_history(chat_service):
     response = await chat_service.chat(123, "А что насчёт JavaScript?", history)
 
     assert len(response) > 0
+
+
+@pytest.mark.asyncio
+async def test_generate_image(chat_service):
+    mock_response = AsyncMock()
+    mock_response.data = [AsyncMock()]
+    mock_response.data[0].url = "https://example.com/image.png"
+    chat_service.client.images.generate = AsyncMock(return_value=mock_response)
+
+    url = await chat_service.generate_image("кот в космосе")
+
+    assert url == "https://example.com/image.png"

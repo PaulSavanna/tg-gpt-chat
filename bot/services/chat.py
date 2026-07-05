@@ -9,6 +9,16 @@ class ChatService:
             "Будь дружелюбным и помогай пользователю."
         )
 
+    async def generate_image(self, prompt: str) -> str:
+        response = await self.client.images.generate(
+            model="dall-e-3",
+            prompt=prompt,
+            size="1024x1024",
+            quality="standard",
+            n=1,
+        )
+        return response.data[0].url
+
     async def chat(self, user_id: int, message: str, history: list[dict]) -> str:
         messages = [{"role": "system", "content": self.system_prompt}]
         messages.extend(history)

@@ -13,6 +13,7 @@ db = Database(settings.db_path)
 
 def get_main_menu():
     return InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🎨 Генерация картинки", callback_data="image")],
         [InlineKeyboardButton(text="🗑️ Очистить историю", callback_data="clear")],
     ])
 
@@ -46,6 +47,29 @@ async def cmd_start(message: types.Message):
 async def cmd_help(message: types.Message):
     from bot.handlers.start import cmd_help as help_cmd
     await help_cmd(message)
+
+
+@router.message(Command("image"))
+async def cmd_image(message: types.Message):
+    args = message.text.split(maxsplit=1)
+    if len(args) < 2:
+        await message.answer(
+            "🎨 Укажи описание картинки.\n\nПример: /image кот в космосе",
+            reply_markup=get_main_menu()
+        )
+        return
+
+    prompt = args[1]
+    await message.answer("🎨 Генерирую картинку...")
+
+    try:
+        image_url = await chat_service.generate_image(prompt)
+        await message.answer_photo(image_url, caption=f"🎨 {prompt}", reply_markup=get_main_menu())
+    except Exception as e:
+        await message.answer(
+            f"😕 Не удалось сгенерировать картинку: {e}",
+            reply_markup=get_main_menu()
+        )
 
 
 @router.message()
