@@ -1,3 +1,5 @@
+import logging
+
 from aiogram import Router, types
 from aiogram.filters import Command
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -5,6 +7,8 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from bot.services.chat import ChatService
 from bot.services.database import Database
 from bot.config import settings
+
+logger = logging.getLogger(__name__)
 
 router = Router()
 chat_service = ChatService(api_key=settings.openai_api_key)
@@ -65,9 +69,10 @@ async def cmd_image(message: types.Message):
     try:
         image_url = await chat_service.generate_image(prompt)
         await message.answer_photo(image_url, caption=f"🎨 {prompt}", reply_markup=get_main_menu())
-    except Exception as e:
+    except Exception:
+        logger.exception("Image generation failed for prompt: %s", prompt)
         await message.answer(
-            f"😕 Не удалось сгенерировать картинку: {e}",
+            "😕 Не удалось сгенерировать картинку. Попробуй позже.",
             reply_markup=get_main_menu()
         )
 
@@ -86,7 +91,15 @@ async def handle_message(message: types.Message):
 
         await db.add_message(user_id, "user", f"[Фото] {text}")
 
-        response = await chat_service.chat_with_image(user_id, text, file_url, history)
+        try:
+            response = await chat_service.chat_with_image(user_id, text, file_url, history)
+        except Exception:
+            logger.exception("Image chat failed for user %s", user_id)
+            await message.answer(
+                "😕 Не удалось обработать фото. Попробуй позже.",
+                reply_markup=get_main_menu()
+            )
+            return
 
         await db.add_message(user_id, "assistant", response)
         await message.answer(response, reply_markup=get_main_menu())
@@ -100,7 +113,15 @@ async def handle_message(message: types.Message):
 
     history = await db.get_history(user_id)
 
-    response = await chat_service.chat(user_id, text, history)
+    try:
+        response = await chat_service.chat(user_id, text, history)
+    except Exception:
+        logger.exception("Chat failed for user %s", user_id)
+        await message.answer(
+            "😕 Произошла ошибка. Попробуй позже.",
+            reply_markup=get_main_menu()
+        )
+        return
 
     await db.add_message(user_id, "assistant", response)
     await message.answer(response, reply_markup=get_main_menu())
