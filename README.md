@@ -1,31 +1,38 @@
-# 🤖 TG GPT Chat Bot
+# TG GPT Chat Bot
 
-Telegram бот с ChatGPT — просто общайся с AI.
+Telegram bot with ChatGPT — just chat with AI.
 
-## Возможности
+## Features
 
-- 💬 Чат с GPT-4o-mini
-- 📷 Анализ фото (описание картинок)
-- 📝 История контекста
-- 🗑️ Очистка истории
-- ⚡ Быстрые ответы
+- Chat with GPT-4o-mini
+- Photo analysis (describe images)
+- Context history
+- Clear history
+- Fast responses
 
-## Установка
+## Setup
 
 ```bash
 pip install -r requirements.txt
 cp .env.example .env
-# Заполни BOT_TOKEN и OPENAI_API_KEY
+# Fill in BOT_TOKEN and OPENAI_API_KEY
 python -m bot.main
 ```
 
-## Команды
+### Environment Variables
 
-- `/start` — начать заново
-- `/clear` — очистить историю
-- `/help` — помощь
+| Variable | Description |
+|---|---|
+| `BOT_TOKEN` | Telegram Bot API token from [@BotFather](https://t.me/BotFather) |
+| `OPENAI_API_KEY` | OpenAI API key for GPT and DALL-E access |
 
-## Кнопки
+## Commands
 
-- 🗑️ Очистить историю — сброс контекста
-- ❓ Помощь — инструкция
+- `/start` — restart the bot
+- `/clear` — clear history
+- `/help` — show help
+
+## Buttons
+
+- Clear History — reset context
+- Help — instructions
